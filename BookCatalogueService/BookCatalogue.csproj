@@ -49,6 +49,7 @@
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -155,10 +156,20 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="BusinessLayer\BookCatalogueService.cs" />
+    <Compile Include="BusinessLayer\IBookCatalogueService.cs" />
+    <Compile Include="BusinessLayer\IMessageService.cs" />
+    <Compile Include="BusinessLayer\MessageService.cs" />
     <Compile Include="Constants\AppConstants.cs" />
     <Compile Include="Controllers\BookCatalogueController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\IBookCatalogue.cs" />
+    <Compile Include="Controllers\IBookCatalogueController.cs" />
+    <Compile Include="Factories\SearchBookResultsFactoryImpl.cs" />
+    <Compile Include="Factories\GetSearchByAuthorResults.cs" />
+    <Compile Include="Factories\GetSearchByISBNResults.cs" />
+    <Compile Include="Factories\GetSearchByTitlesResults.cs" />
+    <Compile Include="Factories\ISearchBookResultsFactory.cs" />
+    <Compile Include="Factories\IGetSearchBookResults.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

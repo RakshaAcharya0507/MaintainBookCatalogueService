@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Mvc;
 
-namespace BookCatalogueService
+namespace BookCatalogues
 {
     public class FilterConfig
     {

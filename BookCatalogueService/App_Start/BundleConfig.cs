@@ -1,7 +1,7 @@
 ﻿using System.Web;
 using System.Web.Optimization;
 
-namespace BookCatalogueService
+namespace BookCatalogue
 {
     public class BundleConfig
     {

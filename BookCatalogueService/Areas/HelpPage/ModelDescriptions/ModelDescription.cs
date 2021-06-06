@@ -1,6 +1,6 @@
 using System;
 
-namespace BookCatalogueService.Areas.HelpPage.ModelDescriptions
+namespace BookCatalogue.Areas.HelpPage.ModelDescriptions
 {
     /// <summary>
     /// Describes a type model.

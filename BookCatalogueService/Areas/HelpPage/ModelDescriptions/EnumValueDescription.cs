@@ -1,4 +1,4 @@
-namespace BookCatalogueService.Areas.HelpPage.ModelDescriptions
+namespace BookCatalogue.Areas.HelpPage.ModelDescriptions
 {
     public class EnumValueDescription
     {

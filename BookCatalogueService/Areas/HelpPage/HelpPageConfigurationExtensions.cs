@@ -11,10 +11,10 @@ using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Description;
-using BookCatalogueService.Areas.HelpPage.ModelDescriptions;
-using BookCatalogueService.Areas.HelpPage.Models;
+using BookCatalogue.Areas.HelpPage.ModelDescriptions;
+using BookCatalogue.Areas.HelpPage.Models;
 
-namespace BookCatalogueService.Areas.HelpPage
+namespace BookCatalogue.Areas.HelpPage
 {
     public static class HelpPageConfigurationExtensions
     {

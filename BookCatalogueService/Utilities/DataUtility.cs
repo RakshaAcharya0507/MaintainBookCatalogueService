@@ -1,10 +1,11 @@
-﻿using System;
+﻿using BookCatalogue.Constants;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Web;
 
-namespace BookCatalogueService.Utilities
+namespace BookCatalogue.Utilities
 {
     public static class DataUtility
     {
@@ -26,7 +27,7 @@ namespace BookCatalogueService.Utilities
         {
             try
             {
-                DateTime date= DateTime.ParseExact(value, "dd/MM/yyyy", CultureInfo.InvariantCulture);
+                DateTime date= DateTime.ParseExact(value, AppConstants.DATETIMEFORMAT, CultureInfo.InvariantCulture);
                 return true;
             }
             catch

@@ -1,10 +1,10 @@
 using System;
 using System.Web.Http;
 using System.Web.Mvc;
-using BookCatalogueService.Areas.HelpPage.ModelDescriptions;
-using BookCatalogueService.Areas.HelpPage.Models;
+using BookCatalogue.Areas.HelpPage.ModelDescriptions;
+using BookCatalogue.Areas.HelpPage.Models;
 
-namespace BookCatalogueService.Areas.HelpPage.Controllers
+namespace BookCatalogue.Areas.HelpPage.Controllers
 {
     /// <summary>
     /// The controller that will handle requests for the help page.

@@ -1,6 +1,7 @@
-﻿using BookCatalogueService.Constants;
-using BookCatalogueService.Models;
-using BookCatalogueService.Utilities;
+﻿using BookCatalogue.BusinessLayer;
+using BookCatalogue.Constants;
+using BookCatalogue.Models;
+using BookCatalogue.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,20 +9,23 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace BookCatalogueService.Controllers
-{
+namespace BookCatalogue.Controllers
+{  
     [RoutePrefix("api/BookCatalogue")]
-    public class BookCatalogueController : ApiController,IBookCatalogue
+    public class BookCatalogueController : ApiController,IBookCatalogueController
     {
-
-        public static Dictionary<long, BookDetails> bookDetailsList = new Dictionary<long, BookDetails>();
-
-        ValidationUtility Validation = null;
+        IBookCatalogueService bookCatalogueService = null;
         public BookCatalogueController()
         {
-            Validation = new ValidationUtility();
+            bookCatalogueService = new BookCatalogueService();
         }
 
+        /// <summary>
+        /// search books in catalogue by matching title,author or ISBN partial or full string
+        /// </summary>
+        /// <param name="searchKey"></param>
+        /// <param name="searchBy"></param>
+        /// <returns></returns>
         [Route("SearchBooks/{searchKey}/{searchBy}")]
         [HttpGet]
         public IHttpActionResult SearchBooks(string searchKey,string searchBy)
@@ -30,31 +34,7 @@ namespace BookCatalogueService.Controllers
             HttpStatusCode statusCode = HttpStatusCode.OK;
             try
             {
-                ValidationUtility validateSearch = new ValidationUtility();
-                if (validateSearch.ValidateSearch(searchKey, searchBy))
-                {
-                    if (searchBy == AppConstants.ISBN)
-                    {
-                        bookCatalogueSearchResponse.searchResult = bookDetailsList.Where(x => x.Key.ToString().Contains(searchKey)).Select(x => x.Value).ToList();
-                    }
-                    else if (AppConstants.TITLE.Equals(searchBy, StringComparison.OrdinalIgnoreCase))
-                    {
-                        bookCatalogueSearchResponse.searchResult = bookDetailsList.Where(x => x.Value.title.Contains(searchKey)).Select(x => x.Value).ToList();
-                    }
-                    else if (AppConstants.Author.Equals(searchBy, StringComparison.OrdinalIgnoreCase))
-                    {
-                        bookCatalogueSearchResponse.searchResult = bookDetailsList.Where(x => x.Value.authors.Any(s => s.Contains(searchKey))).Select(x => x.Value).ToList();
-                    }
-                    if (bookCatalogueSearchResponse.searchResult.Count <= 0)
-                    {
-                        bookCatalogueSearchResponse.statusMessages = new List<string>{ "No data found" };
-                    }                      
-                    bookCatalogueSearchResponse.isSuccess = true;
-                }
-                else
-                {
-                    bookCatalogueSearchResponse.statusMessages =Validation.faultString;
-                }
+                bookCatalogueSearchResponse=bookCatalogueService.SearchBooks(searchKey,searchBy);
             }
             catch (Exception ex)
             {
@@ -68,6 +48,11 @@ namespace BookCatalogueService.Controllers
         }
 
 
+        /// <summary>
+        /// Adding the book to the catalogue
+        /// </summary>
+        /// <param name="bookToAdd"></param>
+        /// <returns></returns>
         [HttpPost]
         [Route("AddBook")]
 
@@ -75,51 +60,52 @@ namespace BookCatalogueService.Controllers
         public IHttpActionResult AddBook([FromBody] BookDetails bookToAdd)
         {
             BookCatalogueResponse bookCatalogueResponse = new BookCatalogueResponse();
-            if (Validation.ValidateRequest(bookToAdd))
+            HttpStatusCode statusCode = HttpStatusCode.OK;
+            try
             {
-                if (bookDetailsList.ContainsKey(bookToAdd.ISBN))
-                {
-                    bookCatalogueResponse.statusMessages = new List<string> { "ISBN already exists" };
-                }                   
-                else
-                {
-                    bookDetailsList.Add(bookToAdd.ISBN, bookToAdd);
-                    bookCatalogueResponse.isSuccess = true;
-                }
+                bookCatalogueResponse = bookCatalogueService.AddBook(bookToAdd);
             }
-            else
+            catch (Exception ex)
             {
-                bookCatalogueResponse.statusMessages = Validation.faultString;
+                bookCatalogueResponse.systemErrors = new SystemException(ex.Message);
+                statusCode = HttpStatusCode.InternalServerError;
             }
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK, bookCatalogueResponse);
+
+            HttpResponseMessage response = Request.CreateResponse(statusCode, bookCatalogueResponse);
             return ResponseMessage(response);
         }
 
+        /// <summary>
+        /// updating the book catalogue by matching the ISBN number
+        /// </summary>
+        /// <param name="bookToUpdate"></param>
+        /// <returns></returns>
         [HttpPut]
         [Route("UpdateBook")]
         //We can also add [FromHeader] headers and validate the headers
         public IHttpActionResult UpdateBook([FromBody] BookDetails bookToUpdate)
         {
             BookCatalogueResponse bookCatalogueResponse = new BookCatalogueResponse();
-            ValidationUtility validateUpdate = new ValidationUtility();
-            if (validateUpdate.ValidateRequest(bookToUpdate))
+            HttpStatusCode statusCode = HttpStatusCode.OK;
+            try
             {
-                if (!bookDetailsList.ContainsKey(bookToUpdate.ISBN))
-                    bookCatalogueResponse.statusMessages=new List<string>{ "ISBN does not exist"};
-                else
-                {
-                    bookDetailsList[bookToUpdate.ISBN] = bookToUpdate;
-                    bookCatalogueResponse.isSuccess = true;
-                }
+                bookCatalogueResponse = bookCatalogueService.UpdateBook(bookToUpdate);
             }
-            else
+            catch (Exception ex)
             {
-                bookCatalogueResponse.statusMessages = validateUpdate.faultString;
+                bookCatalogueResponse.systemErrors = new SystemException(ex.Message);
+                statusCode = HttpStatusCode.InternalServerError;
             }
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK, bookCatalogueResponse);
+
+            HttpResponseMessage response = Request.CreateResponse(statusCode, bookCatalogueResponse);
             return ResponseMessage(response);
         }
 
+        /// <summary>
+        /// deleting the catalogue by matching the ISBN number
+        /// </summary>
+        /// <param name="bookToDelete"></param>
+        /// <returns></returns>
         [HttpDelete]
         [Route("DeleteBook")]
         //We can also add [FromHeader] headers and validate the headers
@@ -127,14 +113,18 @@ namespace BookCatalogueService.Controllers
         {
             BookCatalogueResponse bookCatalogueResponse = new BookCatalogueResponse();
 
-            if (!bookDetailsList.ContainsKey(bookToDelete.ISBN))
-                bookCatalogueResponse.statusMessages.Add("ISBN does not exist");
-            else
+            HttpStatusCode statusCode = HttpStatusCode.OK;
+            try
             {
-                bookDetailsList.Remove(bookToDelete.ISBN);
-                bookCatalogueResponse.isSuccess = true;
+                bookCatalogueResponse = bookCatalogueService.DeleteBook(bookToDelete);
             }
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK, bookCatalogueResponse);
+            catch (Exception ex)
+            {
+                bookCatalogueResponse.systemErrors = new SystemException(ex.Message);
+                statusCode = HttpStatusCode.InternalServerError;
+            }
+
+            HttpResponseMessage response = Request.CreateResponse(statusCode, bookCatalogueResponse);
             return ResponseMessage(response);
         }
     }

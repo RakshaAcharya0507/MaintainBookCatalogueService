@@ -1,11 +1,11 @@
-﻿using BookCatalogueService.Constants;
-using BookCatalogueService.Models;
+﻿using BookCatalogue.Constants;
+using BookCatalogue.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace BookCatalogueService.Utilities
+namespace BookCatalogue.Utilities
 {
     public class ValidationUtility
     {
@@ -16,22 +16,24 @@ namespace BookCatalogueService.Utilities
         }
         public bool ValidateRequest(BookDetails bookDetails)
         {
-            if(bookDetails==null)
+            faultString.Clear();
+
+            if (bookDetails==null)
             {
-                faultString.Add("Empty request");
+                faultString.Add(AppConstants.EMPTYREQUEST);
             }
             else
             {
                 if (bookDetails.authors == null || bookDetails.authors.Count <= 0)
-                    faultString.Add("Authors not provided");
+                    faultString.Add(AppConstants.AUTHORSNOTPROVIDED);
 
                 if (bookDetails.title == null ||bookDetails.title==string.Empty)
-                    faultString.Add("Title is invalid");
+                    faultString.Add(AppConstants.INVALIDTITLE);
 
                 if (!DataUtility.tryDateTimeParse(bookDetails.publicationDate))
-                    faultString.Add("Invalid publication date");
+                    faultString.Add(AppConstants.INVALIDPUBLICATIONDATE);
 
-                if (bookDetails.ISBN.ToString().Length != 13)
+                if (bookDetails.ISBN.ToString().Length != 13 && DataUtility.tryDateTimeParse(bookDetails.ISBN.ToString()))
                     faultString.Add("ISBN is 13 digit number");
             }
            
@@ -43,6 +45,8 @@ namespace BookCatalogueService.Utilities
 
         public bool ValidateSearch(string searchKey,string searchBy)
         {
+            faultString.Clear();
+
             if (searchBy == AppConstants.ISBN)
             {
                 try
@@ -51,14 +55,14 @@ namespace BookCatalogueService.Utilities
                 }
                 catch
                 {
-                    faultString.Add("ISBN should be numeric");
+                    faultString.Add(AppConstants.INVALIDISBNLENGTH);
 
                     return false;
                 }
             }
             else if (!AppConstants.SearchByTypes.Any(s => s.Equals(searchBy, StringComparison.OrdinalIgnoreCase)))
             {
-                faultString.Add("Invalid search type, search type should be one of: " + String.Join(",", AppConstants.SearchByTypes));
+                faultString.Add(AppConstants.INVALIDSEARCHTYPE + String.Join(",", AppConstants.SearchByTypes));
                 return false;
             }
 
